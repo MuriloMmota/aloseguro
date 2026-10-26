@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>AlôSeguro — Denunciar número</title>
+    <link rel="stylesheet" href="css/estilo.css">
+</head>
+<body>
+<header id="topo"></header>
+
+<main>
+    <div class="medio">
+        <h1>Denunciar um número</h1>
+        <p class="subtitulo">Sua denúncia ajuda a próxima pessoa que receber uma ligação deste número.</p>
+
+        <form class="cartao" id="form-denuncia" novalidate>
+            <label for="numero">Número que ligou</label>
+            <input id="numero" type="tel" inputmode="tel" placeholder="(11) 99999-9999" required>
+
+            <label for="banco">Banco que o golpista disse ser <span class="opcional">(opcional)</span></label>
+            <input id="banco" maxlength="100" placeholder="Ex.: Banco Aurora">
+
+            <label for="tipo">O que pediram durante a ligação?</label>
+            <select id="tipo" required>
+                <option value="">Selecione...</option>
+                <option value="PEDIU_SENHA">Pediu senha ou token</option>
+                <option value="PEDIU_CODIGO">Pediu código recebido por SMS</option>
+                <option value="PEDIU_TRANSFERENCIA">Pediu Pix ou transferência</option>
+                <option value="PEDIU_APLICATIVO">Pediu para instalar um aplicativo</option>
+                <option value="PEDIU_CARTAO">Pediu para entregar o cartão</option>
+                <option value="OUTRO">Outro</option>
+            </select>
+
+            <label for="quando">Quando foi a ligação? <span class="opcional">(opcional)</span></label>
+            <input id="quando" type="datetime-local">
+
+            <label for="descricao">Conte o que aconteceu <span class="opcional">(opcional, até 500 caracteres)</span></label>
+            <textarea id="descricao" maxlength="500"
+                      placeholder="Ex.: disse que minha conta foi invadida e transferiu para o setor de segurança..."></textarea>
+
+            <div id="aviso" class="aviso" hidden></div>
+
+            <button class="botao largo" type="submit" id="botao">Enviar denúncia</button>
+        </form>
+    </div>
+</main>
+
+<script src="js/app.js"></script>
+<script>
+    if (exigirLogin()) {
+        const numeroInicial = parametro('numero');
+        if (numeroInicial) document.getElementById('numero').value = numeroInicial;
+
+        // Não permite escolher data no futuro
+        const agora = new Date();
+        agora.setMinutes(agora.getMinutes() - agora.getTimezoneOffset());
+        document.getElementById('quando').max = agora.toISOString().slice(0, 16);
+
+        document.getElementById('form-denuncia').addEventListener('submit', async evento => {
+            evento.preventDefault();
+            const aviso = document.getElementById('aviso');
+            const botao = document.getElementById('botao');
+            aviso.hidden = true;
+
+            const tipo = document.getElementById('tipo').value;
+            if (!tipo) {
+                mostrarErro(aviso, new Error('Selecione o que pediram durante a ligação.'));
+                return;
+            }
+
+            botao.disabled = true;
+            try {
+                const quando = document.getElementById('quando').value;
+                const resposta = await chamarApi('/denuncias', {
+                    method: 'POST',
+                    protegida: true,
+                    body: JSON.stringify({
+                        numero: document.getElementById('numero').value,
+                        bancoAlegado: document.getElementById('banco').value,
+                        tipoAbordagem: tipo,
+                        descricao: document.getElementById('descricao').value,
+                        dataHoraLigacao: quando || null
+                    })
+                });
+                mostrarSucesso(aviso, 'Denúncia registrada. Obrigado! Abrindo o resultado atualizado...');
+                setTimeout(() => { location.href = 'index.html?numero=' + resposta.numero; }, 1200);
+            } catch (erro) {
+                mostrarErro(aviso, erro);
+                botao.disabled = false;
+            }
+        });
+    }
+</script>
+</body>
+</html>

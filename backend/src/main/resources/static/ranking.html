@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>AlôSeguro — Mais denunciados</title>
+    <link rel="stylesheet" href="css/estilo.css">
+</head>
+<body>
+<header id="topo"></header>
+
+<main>
+    <div class="medio">
+        <h1>Números mais denunciados</h1>
+        <p class="subtitulo">
+            Ranking dos números com mais denúncias no período
+            <select id="periodo" style="width:auto;display:inline-block;padding:4px 8px;margin-left:6px">
+                <option value="7">últimos 7 dias</option>
+                <option value="30" selected>últimos 30 dias</option>
+                <option value="90">últimos 90 dias</option>
+            </select>
+        </p>
+
+        <div class="cartao">
+            <table class="tabela">
+                <thead>
+                <tr><th>#</th><th>Número</th><th>Denúncias</th><th>Última denúncia</th></tr>
+                </thead>
+                <tbody id="corpo"><tr><td colspan="4" class="vazio">Carregando...</td></tr></tbody>
+            </table>
+        </div>
+        <div id="aviso" class="aviso" hidden></div>
+    </div>
+</main>
+
+<script src="js/app.js"></script>
+<script>
+    if (exigirLogin()) {
+        document.getElementById('periodo').addEventListener('change', carregar);
+        carregar();
+    }
+
+    async function carregar() {
+        const corpo = document.getElementById('corpo');
+        const dias = document.getElementById('periodo').value;
+        try {
+            const itens = await chamarApi('/numeros/ranking?dias=' + dias + '&limite=10', { protegida: true });
+            if (itens.length === 0) {
+                corpo.innerHTML = '<tr><td colspan="4" class="vazio">Nenhuma denúncia neste período.</td></tr>';
+                return;
+            }
+            corpo.innerHTML = itens.map((item, i) => `
+                <tr>
+                    <td class="posicao">${i + 1}</td>
+                    <td><a href="index.html?numero=${escapar(item.numero)}">${escapar(item.numeroFormatado)}</a></td>
+                    <td class="total">${item.totalDenuncias}</td>
+                    <td>${formatarDataHora(item.ultimaDenuncia)}</td>
+                </tr>`).join('');
+        } catch (erro) {
+            corpo.innerHTML = '';
+            mostrarErro(document.getElementById('aviso'), erro);
+        }
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>AlôSeguro — Minhas denúncias</title>
+    <link rel="stylesheet" href="css/estilo.css">
+</head>
+<body>
+<header id="topo"></header>
+
+<main>
+    <div class="medio">
+        <h1>Minhas denúncias</h1>
+        <p class="subtitulo">Histórico das ligações que você denunciou.</p>
+
+        <div class="cartao">
+            <ul class="lista-denuncias" id="lista"><li class="vazio">Carregando...</li></ul>
+        </div>
+        <div id="aviso" class="aviso" hidden></div>
+    </div>
+</main>
+
+<script src="js/app.js"></script>
+<script>
+    if (exigirLogin()) {
+        carregar();
+    }
+
+    async function carregar() {
+        const lista = document.getElementById('lista');
+        try {
+            const denuncias = await chamarApi('/denuncias/minhas', { protegida: true });
+            if (denuncias.length === 0) {
+                lista.innerHTML = '<li class="vazio">Você ainda não fez nenhuma denúncia. '
+                    + '<a href="denunciar.html">Denunciar um número</a></li>';
+                return;
+            }
+            lista.innerHTML = denuncias.map(d => `
+                <li>
+                    <div class="linha1">
+                        <a class="num" href="index.html?numero=${escapar(d.numero)}">${escapar(d.numeroFormatado)}</a>
+                        <span class="data">Registrada em ${formatarDataHora(d.registradaEm)}</span>
+                    </div>
+                    <span class="etiqueta">${escapar(d.tipoAbordagemDescricao)}</span>
+                    ${d.bancoAlegado ? `<span class="etiqueta">Disse ser: ${escapar(d.bancoAlegado)}</span>` : ''}
+                    ${d.descricao ? `<p>${escapar(d.descricao)}</p>` : ''}
+                </li>`).join('');
+        } catch (erro) {
+            lista.innerHTML = '';
+            mostrarErro(document.getElementById('aviso'), erro);
+        }
+    }
+</script>
+</body>
+</html>

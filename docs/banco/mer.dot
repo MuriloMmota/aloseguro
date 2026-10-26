@@ -1,0 +1,62 @@
+// MER (modelo conceitual) do AlôSeguro em notação de Peter Chen.
+// Gerar a imagem: neato -n -Tpng -Gdpi=200 mer.dot -o mer.png
+graph MER {
+    graph [splines=line, bgcolor="white", pad=0.4, fontname="Helvetica",
+           label=<<B>AlôSeguro — MER (modelo conceitual)</B><BR/><FONT POINT-SIZE="11">Notação de Chen · atributo sublinhado = identificador</FONT>>,
+           labelloc=t, fontsize=18];
+    node  [fontname="Helvetica", fontsize=12];
+    edge  [fontname="Helvetica", fontsize=11, color="#475569"];
+
+    // ---------------- entidades
+    node [shape=box, style="filled,bold", fillcolor="#0B1220", fontcolor="white", color="#0B1220", width=1.9, height=0.6, fontsize=13];
+    USUARIO          [label="USUÁRIO",          pos="100,400!"];
+    DENUNCIA         [label="DENÚNCIA",         pos="560,400!"];
+    NUMERO           [label="NÚMERO SUSPEITO",  pos="1020,400!", width=2.2];
+    CENTRAL          [label="CENTRAL OFICIAL",  pos="1020,100!", width=2.2];
+
+    // ---------------- relacionamentos
+    node [shape=diamond, style="filled", fillcolor="#E6F6F8", fontcolor="#0B1220", color="#138A93", width=1.6, height=0.9, fontsize=12];
+    REGISTRA   [label="registra",    pos="330,400!"];
+    REFERE     [label="refere-se a", pos="790,400!", width=1.8];
+
+    // ---------------- atributos
+    node [shape=ellipse, style="filled", fillcolor="white", fontcolor="#1C2433", color="#94A3B8", width=0, height=0, fontsize=11, margin="0.08,0.04"];
+
+    u_id    [label=<<U>id</U>>,      pos="0,520!"];
+    u_nome  [label="nome",           pos="100,560!"];
+    u_email [label="email",          pos="200,520!"];
+    u_senha [label="senha_hash",     pos="20,270!"];
+    u_cri   [label="criado_em",      pos="160,250!"];
+
+    d_id    [label=<<U>id</U>>,      pos="440,530!"];
+    d_banco [label="banco_alegado",  pos="560,575!"];
+    d_tipo  [label="tipo_abordagem", pos="690,530!"];
+    d_desc  [label="descricao",      pos="440,270!"];
+    d_data  [label="data_hora_ligacao", pos="580,235!"];
+    d_cri   [label="criado_em",      pos="700,275!"];
+
+    n_id    [label=<<U>id</U>>,      pos="910,520!"];
+    n_num   [label="numero",         pos="1020,565!"];
+    n_ddd   [label="ddd",            pos="1130,520!"];
+    n_tipo  [label="tipo_linha",     pos="1170,430!"];
+    n_cri   [label="criado_em",      pos="1150,330!"];
+
+    c_id    [label=<<U>id</U>>,      pos="860,20!"];
+    c_banco [label="banco",          pos="980,0!"];
+    c_num   [label="numero",         pos="1100,0!"];
+    c_desc  [label="descricao",      pos="1190,60!"];
+
+    // ---------------- ligações
+    USUARIO -- REGISTRA  [headlabel="", label="(1,1)", fontcolor="#138A93"];
+    REGISTRA -- DENUNCIA [label="(0,N)", fontcolor="#138A93"];
+    DENUNCIA -- REFERE   [label="(1,N)", fontcolor="#138A93"];
+    REFERE -- NUMERO     [label="(1,1)", fontcolor="#138A93"];
+
+    NUMERO -- CENTRAL [style=dashed, color="#94A3B8",
+                       label="  comparado pelo número\n  (alerta de spoofing)", fontcolor="#64748B", fontsize=10];
+
+    USUARIO -- {u_id u_nome u_email u_senha u_cri};
+    DENUNCIA -- {d_id d_banco d_tipo d_desc d_data d_cri};
+    NUMERO -- {n_id n_num n_ddd n_tipo n_cri};
+    CENTRAL -- {c_id c_banco c_num c_desc};
+}

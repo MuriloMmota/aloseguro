@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">AlôSeguro</string>
+    <string name="marca">AlôSeguro</string>
+    <string name="chamada_hero">Recebeu uma ligação do \"banco\"?</string>
+    <string name="subtitulo_hero">Consulte o número antes de passar qualquer dado.</string>
+    <string name="dica_numero">Número de telefone</string>
+    <string name="consultar">Consultar</string>
+    <string name="score_valor">Score de risco: %1$d / 100</string>
+
+    <string name="rotulo_total">denúncias</string>
+    <string name="rotulo_30dias">em 30 dias</string>
+    <string name="rotulo_pessoas">pessoas</string>
+
+    <string name="titulo_protecao">Identificação de chamadas</string>
+    <string name="protecao_ativa">Ativa. Ao receber uma ligação de um número fora dos seus contatos, o AlôSeguro avisa o risco por notificação.</string>
+    <string name="protecao_inativa">Desativada. Ative para receber o alerta de risco automaticamente quando alguém ligar.</string>
+    <string name="protecao_sem_notificacao">Ativa, mas as notificações estão bloqueadas. Permita para ver os alertas.</string>
+    <string name="protecao_versao">A identificação automática exige Android 10 ou superior.</string>
+    <string name="protecao_ja_ativa">A identificação de chamadas já está ativa.</string>
+    <string name="ativar_protecao">Ativar identificação de chamadas</string>
+    <string name="permitir_notificacoes">Permitir notificações</string>
+
+    <string name="dicas">🔒 Banco nenhum pede senha, token ou código por telefone.\n📵 O número na tela pode ser falsificado (spoofing).\n☎️ Na dúvida, desligue e ligue para o número do seu cartão.</string>
+
+    <string name="servidor_atual">Servidor: %1$s (toque para alterar)</string>
+    <string name="servidor_titulo">Endereço da API</string>
+    <string name="servidor_ajuda">No emulador use http://10.0.2.2:8080. Em um celular de verdade, use o IP do computador na mesma rede Wi-Fi (ex.: http://192.168.0.10:8080).</string>
+    <string name="salvar">Salvar</string>
+    <string name="cancelar">Cancelar</string>
+    <string name="padrao_emulador">Emulador</string>
+</resources>

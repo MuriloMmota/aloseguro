@@ -1,0 +1,40 @@
+---
+title: AlôSeguro — DER (modelo lógico, PostgreSQL)
+---
+erDiagram
+    usuarios ||--o{ denuncias : "registra"
+    numeros_suspeitos ||--|{ denuncias : "recebe"
+
+    usuarios {
+        BIGSERIAL id PK
+        VARCHAR_100 nome "NOT NULL"
+        VARCHAR_150 email UK "NOT NULL"
+        VARCHAR_255 senha_hash "NOT NULL, BCrypt"
+        TIMESTAMP criado_em "NOT NULL"
+    }
+
+    numeros_suspeitos {
+        BIGSERIAL id PK
+        VARCHAR_15 numero UK "NOT NULL, só dígitos"
+        VARCHAR_2 ddd "NULL para 0800 e 4004"
+        VARCHAR_20 tipo_linha "CELULAR, FIXO, SERVICO_0800, CAPITAIS"
+        TIMESTAMP criado_em "NOT NULL"
+    }
+
+    denuncias {
+        BIGSERIAL id PK
+        BIGINT numero_id FK "NOT NULL"
+        BIGINT usuario_id FK "NOT NULL"
+        VARCHAR_100 banco_alegado
+        VARCHAR_30 tipo_abordagem "NOT NULL"
+        VARCHAR_500 descricao
+        TIMESTAMP data_hora_ligacao
+        TIMESTAMP criado_em "NOT NULL"
+    }
+
+    centrais_oficiais {
+        BIGSERIAL id PK
+        VARCHAR_100 banco "NOT NULL"
+        VARCHAR_15 numero UK "NOT NULL"
+        VARCHAR_150 descricao
+    }

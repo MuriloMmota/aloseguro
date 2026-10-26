@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="azul_escuro">#0B1220</color>
+    <color name="ciano">#22B8C4</color>
+    <color name="branco">#FFFFFF</color>
+    <color name="fundo">#F4F6FA</color>
+    <color name="texto">#1C2433</color>
+    <color name="texto_suave">#5B6678</color>
+    <color name="texto_claro">#B8C4D8</color>
+    <color name="borda">#DFE4EC</color>
+    <color name="trilho">#E9EDF3</color>
+    <color name="erro_fundo">#FDECEA</color>
+    <color name="erro_texto">#A1281F</color>
+    <color name="dica_fundo">#E6F6F8</color>
+</resources>

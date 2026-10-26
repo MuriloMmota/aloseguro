@@ -1,0 +1,23 @@
+# Java / Maven
+target/
+*.class
+*.log
+
+# IntelliJ / VS Code
+.idea/
+*.iml
+.vscode/
+
+# Android
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+android/.idea/
+*.apk
+
+# Segredos: nunca enviar senhas para o GitHub
+.env
+application-local.properties
+
+.DS_Store

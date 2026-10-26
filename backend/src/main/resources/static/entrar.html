@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>AlôSeguro — Entrar</title>
+    <link rel="stylesheet" href="css/estilo.css">
+</head>
+<body>
+<header id="topo"></header>
+
+<main>
+    <div class="estreito">
+        <h1>Entrar</h1>
+        <p class="subtitulo">Faça login para denunciar números e acompanhar suas denúncias.</p>
+
+        <form class="cartao" id="form-login" novalidate>
+            <label for="email">E-mail</label>
+            <input id="email" type="email" autocomplete="email" required>
+
+            <label for="senha">Senha</label>
+            <input id="senha" type="password" autocomplete="current-password" required>
+
+            <div id="aviso" class="aviso" hidden></div>
+
+            <button class="botao largo" type="submit" id="botao">Entrar</button>
+
+            <p class="rodape-form">Ainda não tem conta? <a href="cadastro.html" id="link-cadastro">Cadastre-se</a></p>
+        </form>
+    </div>
+</main>
+
+<script src="js/app.js"></script>
+<script>
+    const voltar = parametro('voltar') || 'index.html';
+    document.getElementById('link-cadastro').href = 'cadastro.html?voltar=' + encodeURIComponent(voltar);
+
+    document.getElementById('form-login').addEventListener('submit', async evento => {
+        evento.preventDefault();
+        const aviso = document.getElementById('aviso');
+        const botao = document.getElementById('botao');
+        aviso.hidden = true;
+        botao.disabled = true;
+
+        try {
+            const resposta = await chamarApi('/auth/login', {
+                method: 'POST',
+                body: JSON.stringify({
+                    email: document.getElementById('email').value,
+                    senha: document.getElementById('senha').value
+                })
+            });
+            Sessao.salvar(resposta);
+            location.href = voltar;
+        } catch (erro) {
+            mostrarErro(aviso, erro);
+            botao.disabled = false;
+        }
+    });
+</script>
+</body>
+</html>

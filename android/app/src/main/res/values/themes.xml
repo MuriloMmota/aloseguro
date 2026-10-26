@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.AloSeguro" parent="Theme.Material3.Light.NoActionBar">
+        <item name="colorPrimary">@color/ciano</item>
+        <item name="colorOnPrimary">@color/azul_escuro</item>
+        <item name="android:statusBarColor">@color/azul_escuro</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+
+    <style name="Resumo">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:gravity">center_horizontal</item>
+        <item name="android:padding">10dp</item>
+        <item name="android:background">@drawable/fundo_resumo</item>
+    </style>
+
+    <style name="ResumoNumero">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/texto</item>
+    </style>
+
+    <style name="ResumoRotulo">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">11sp</item>
+        <item name="android:textColor">@color/texto_suave</item>
+    </style>
+</resources>
