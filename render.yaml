@@ -1,0 +1,31 @@
+# Blueprint do Render: publica a API + site do AlôSeguro a partir deste repositório.
+# No Render: New → Blueprint → escolha o repositório. Depois preencha as variáveis
+# marcadas com "sync: false" (elas não ficam no GitHub, por segurança).
+services:
+  - type: web
+    name: aloseguro
+    runtime: docker
+    plan: free
+    # Mesma região do banco no Neon (AWS us-east-1) para as consultas ao banco serem rápidas
+    region: virginia
+    rootDir: backend
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/status
+    autoDeploy: true
+    envVars:
+      - key: DB_URL
+        sync: false
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: LLM_API_KEY
+        sync: false
+      - key: LLM_MODEL
+        value: gemini-flash-latest
+      - key: DADOS_DEMO
+        value: "true"
+      - key: DADOS_DEMO_RECRIAR
+        value: "false"

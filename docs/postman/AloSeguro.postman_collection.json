@@ -5,89 +5,355 @@
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
-    { "key": "base", "value": "http://localhost:8080/api" },
-    { "key": "token", "value": "" }
+    {
+      "key": "base",
+      "value": "http://localhost:8080/api"
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "idDenuncia",
+      "value": ""
+    }
   ],
   "item": [
     {
       "name": "1. Consulta pública (sem token) - 200",
-      "request": { "method": "GET", "url": "{{base}}/numeros/11900000001" },
-      "event": [{ "listen": "test", "script": { "exec": [
-        "pm.test('Status 200', () => pm.response.to.have.status(200));",
-        "pm.test('Nível ALTO', () => pm.expect(pm.response.json().nivel).to.eql('ALTO'));"
-      ] } }]
+      "request": {
+        "method": "GET",
+        "url": "{{base}}/numeros/11900000001"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "pm.test('Nível ALTO', () => pm.expect(pm.response.json().nivel).to.eql('ALTO'));"
+            ]
+          }
+        }
+      ]
     },
     {
       "name": "2. Denúncia SEM token - 401",
       "request": {
         "method": "POST",
-        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
         "url": "{{base}}/denuncias",
-        "body": { "mode": "raw", "raw": "{\n  \"numero\": \"11988887777\",\n  \"bancoAlegado\": \"Banco Aurora\",\n  \"tipoAbordagem\": \"PEDIU_SENHA\",\n  \"descricao\": \"Teste sem token\"\n}" }
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"numero\": \"11988887777\",\n  \"bancoAlegado\": \"Banco Aurora\",\n  \"tipoAbordagem\": \"PEDIU_SENHA\",\n  \"descricao\": \"Teste sem token\"\n}"
+        }
       },
-      "event": [{ "listen": "test", "script": { "exec": [
-        "pm.test('Status 401', () => pm.response.to.have.status(401));"
-      ] } }]
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 401', () => pm.response.to.have.status(401));"
+            ]
+          }
+        }
+      ]
     },
     {
       "name": "3. Login - guarda o token",
       "request": {
         "method": "POST",
-        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
         "url": "{{base}}/auth/login",
-        "body": { "mode": "raw", "raw": "{\n  \"email\": \"demo@aloseguro.com\",\n  \"senha\": \"demo123\"\n}" }
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"demo@aloseguro.com\",\n  \"senha\": \"demo123\"\n}"
+        }
       },
-      "event": [{ "listen": "test", "script": { "exec": [
-        "pm.test('Status 200', () => pm.response.to.have.status(200));",
-        "pm.collectionVariables.set('token', pm.response.json().token);"
-      ] } }]
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "pm.collectionVariables.set('token', pm.response.json().token);"
+            ]
+          }
+        }
+      ]
     },
     {
       "name": "4. Denúncia COM token - 201",
       "request": {
         "method": "POST",
         "header": [
-          { "key": "Content-Type", "value": "application/json" },
-          { "key": "Authorization", "value": "Bearer {{token}}" }
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
         ],
         "url": "{{base}}/denuncias",
-        "body": { "mode": "raw", "raw": "{\n  \"numero\": \"11988887777\",\n  \"bancoAlegado\": \"Banco Aurora\",\n  \"tipoAbordagem\": \"PEDIU_SENHA\",\n  \"descricao\": \"Disse que minha conta foi invadida e pediu a senha.\"\n}" }
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"numero\": \"11988887777\",\n  \"bancoAlegado\": \"Banco Aurora\",\n  \"tipoAbordagem\": \"PEDIU_SENHA\",\n  \"descricao\": \"Disse que minha conta foi invadida e pediu a senha.\"\n}"
+        }
       },
-      "event": [{ "listen": "test", "script": { "exec": [
-        "pm.test('Status 201', () => pm.response.to.have.status(201));"
-      ] } }]
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 201', () => pm.response.to.have.status(201));",
+              "pm.collectionVariables.set('idDenuncia', pm.response.json().id);"
+            ]
+          }
+        }
+      ]
     },
     {
       "name": "5. Consulta do número denunciado - score subiu",
-      "request": { "method": "GET", "url": "{{base}}/numeros/11988887777" },
-      "event": [{ "listen": "test", "script": { "exec": [
-        "pm.test('Tem denúncia', () => pm.expect(pm.response.json().totalDenuncias).to.be.above(0));"
-      ] } }]
+      "request": {
+        "method": "GET",
+        "url": "{{base}}/numeros/11988887777"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Tem denúncia', () => pm.expect(pm.response.json().totalDenuncias).to.be.above(0));"
+            ]
+          }
+        }
+      ]
     },
     {
       "name": "6. Ranking (com token) - 200",
       "request": {
         "method": "GET",
-        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
         "url": "{{base}}/numeros/ranking?dias=30&limite=10"
       },
-      "event": [{ "listen": "test", "script": { "exec": [
-        "pm.test('Status 200', () => pm.response.to.have.status(200));"
-      ] } }]
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
     },
     {
       "name": "7. Central oficial - alerta de spoofing",
-      "request": { "method": "GET", "url": "{{base}}/numeros/08007001000" },
-      "event": [{ "listen": "test", "script": { "exec": [
-        "pm.test('Nível CENTRAL_OFICIAL', () => pm.expect(pm.response.json().nivel).to.eql('CENTRAL_OFICIAL'));"
-      ] } }]
+      "request": {
+        "method": "GET",
+        "url": "{{base}}/numeros/08007001000"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Nível CENTRAL_OFICIAL', () => pm.expect(pm.response.json().nivel).to.eql('CENTRAL_OFICIAL'));"
+            ]
+          }
+        }
+      ]
     },
     {
       "name": "8. Número inválido - 400",
-      "request": { "method": "GET", "url": "{{base}}/numeros/123" },
-      "event": [{ "listen": "test", "script": { "exec": [
-        "pm.test('Status 400', () => pm.response.to.have.status(400));"
-      ] } }]
+      "request": {
+        "method": "GET",
+        "url": "{{base}}/numeros/123"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 400', () => pm.response.to.have.status(400));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "9. Como funciona o motor (público) - 200",
+      "request": {
+        "method": "GET",
+        "url": "{{base}}/motor"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "10. Status da base e da IA (público) - 200",
+      "request": {
+        "method": "GET",
+        "url": "{{base}}/status"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "11. Ver a denúncia criada - 200",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": "{{base}}/denuncias/{{idDenuncia}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "12. Corrigir a denúncia (PUT) - 200",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": "{{base}}/denuncias/{{idDenuncia}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"bancoAlegado\": \"Banco Aurora\",\n  \"tipoAbordagem\": \"RETIRADA_CARTAO\",\n  \"descricao\": \"Disseram que um motoboy ia buscar meu cartão.\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "13. Excluir a denúncia - 204",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": "{{base}}/denuncias/{{idDenuncia}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 204', () => pm.response.to.have.status(204));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "14. Ver a denúncia excluída - 404",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": "{{base}}/denuncias/{{idDenuncia}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 404', () => pm.response.to.have.status(404));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "15. Minha conta - 200",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": "{{base}}/conta"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
     }
   ]
 }
