@@ -3,6 +3,7 @@ package br.com.aloseguro.exception;
 import br.com.aloseguro.dto.ErroResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -61,6 +62,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
     public ResponseEntity<ErroResponse> tipoNaoSuportado(HttpMediaTypeNotSupportedException e) {
         return resposta(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "Envie o corpo em JSON (Content-Type: application/json).", List.of());
+    }
+
+    /** Violação de regra do banco (ex.: duas requisições iguais ao mesmo tempo). */
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErroResponse> integridade(DataIntegrityViolationException e) {
+        return resposta(HttpStatus.CONFLICT, "Os dados conflitam com um registro existente.", List.of());
     }
 
     @ExceptionHandler(Exception.class)

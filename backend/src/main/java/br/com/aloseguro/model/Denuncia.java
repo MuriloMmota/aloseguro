@@ -15,6 +15,7 @@ import jakarta.persistence.Table;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.Set;
 
 /**
  * Relato de um usuário que recebeu uma ligação de golpe.
@@ -48,6 +49,14 @@ public class Denuncia {
     @Column(name = "data_hora_ligacao")
     private LocalDateTime dataHoraLigacao;
 
+    /** Tópicos identificados no relato, separados por vírgula (ex.: "PEDIU_PIX,URGENCIA"). */
+    @Column(length = 300)
+    private String tags;
+
+    /** Quem gerou as tags: IA, REGRAS ou SEED (dados fictícios). */
+    @Column(name = "tags_origem", length = 10)
+    private String tagsOrigem;
+
     @Column(name = "criado_em", nullable = false)
     private Instant criadoEm;
 
@@ -71,7 +80,21 @@ public class Denuncia {
         }
     }
 
-    /** Usado apenas pelos dados de demonstração, para simular denúncias antigas. */
+    /** Edição feita pelo próprio autor da denúncia (o número denunciado não muda). */
+    public void atualizar(String bancoAlegado, TipoAbordagem tipoAbordagem, String descricao,
+                          LocalDateTime dataHoraLigacao) {
+        this.bancoAlegado = bancoAlegado;
+        this.tipoAbordagem = tipoAbordagem;
+        this.descricao = descricao;
+        this.dataHoraLigacao = dataHoraLigacao;
+    }
+
+    public void definirTags(Set<TagRelato> tags, String origem) {
+        this.tags = TagRelato.paraTexto(tags);
+        this.tagsOrigem = origem;
+    }
+
+    /** Usado apenas pelos dados de demonstração e pelos testes, para simular denúncias antigas. */
     public void definirCriadoEm(Instant criadoEm) {
         this.criadoEm = criadoEm;
     }
@@ -102,6 +125,14 @@ public class Denuncia {
 
     public LocalDateTime getDataHoraLigacao() {
         return dataHoraLigacao;
+    }
+
+    public Set<TagRelato> getTags() {
+        return TagRelato.deTexto(tags);
+    }
+
+    public String getTagsOrigem() {
+        return tagsOrigem;
     }
 
     public Instant getCriadoEm() {

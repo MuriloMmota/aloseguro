@@ -26,8 +26,9 @@ import java.util.List;
 /**
  * Regras de acesso da API.
  *
- * Públicas:    cadastro, login e consulta de número (precisa funcionar no meio de uma ligação).
- * Protegidas:  registrar denúncia, minhas denúncias e ranking.
+ * Públicas:    cadastro, login, consulta de número (precisa funcionar no meio de uma ligação),
+ *              explicação do motor e status.
+ * Protegidas:  CRUD de denúncias, conta do usuário e ranking.
  * O site (arquivos estáticos) é público.
  */
 @Configuration
@@ -48,6 +49,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/numeros/ranking").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/numeros/*").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/motor", "/api/status").permitAll()
                         .requestMatchers("/api/**").authenticated()
                         .anyRequest().permitAll())
                 .exceptionHandling(e -> e.authenticationEntryPoint((request, response, ex) -> {

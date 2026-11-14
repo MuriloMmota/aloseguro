@@ -2,32 +2,40 @@ package br.com.aloseguro.repository;
 
 import br.com.aloseguro.model.Denuncia;
 import br.com.aloseguro.model.NumeroSuspeito;
-import br.com.aloseguro.model.TipoAbordagem;
 import br.com.aloseguro.model.Usuario;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.Instant;
-import java.util.Collection;
 import java.util.List;
 
 public interface DenunciaRepository extends JpaRepository<Denuncia, Long> {
 
-    long countByNumero(NumeroSuspeito numero);
-
-    long countByNumeroAndCriadoEmAfter(NumeroSuspeito numero, Instant desde);
-
-    long countByNumeroAndTipoAbordagemIn(NumeroSuspeito numero, Collection<TipoAbordagem> tipos);
-
     boolean existsByUsuarioAndNumeroAndCriadoEmAfter(Usuario usuario, NumeroSuspeito numero, Instant desde);
 
-    @Query("select count(distinct d.usuario.id) from Denuncia d where d.numero = :numero")
-    long contarUsuariosDistintos(@Param("numero") NumeroSuspeito numero);
+    /** Todas as denúncias de um número, já com o autor carregado (o motor usa a idade da conta). */
+    @Query("select d from Denuncia d join fetch d.usuario where d.numero = :numero order by d.criadoEm desc")
+    List<Denuncia> buscarDoNumero(@Param("numero") NumeroSuspeito numero);
 
     @Query("select d from Denuncia d join fetch d.numero where d.usuario = :usuario order by d.criadoEm desc")
     List<Denuncia> buscarDoUsuario(@Param("usuario") Usuario usuario);
+
+    /**
+     * Quantos OUTROS números do mesmo bloco de numeração (mesmo prefixo) têm denúncia.
+     * Golpistas costumam usar linhas em sequência.
+     */
+    @Query("""
+            select count(distinct d.numero.id) from Denuncia d
+            where d.numero.numero like :prefixo and d.numero.numero <> :numero
+            """)
+    long contarVizinhosDenunciados(@Param("prefixo") String prefixo, @Param("numero") String numero);
+
+    @Modifying
+    @Query("delete from Denuncia d where d.usuario = :usuario")
+    int apagarDoUsuario(@Param("usuario") Usuario usuario);
 
     @Query("""
             select d.numero.numero as numero, count(d) as total, max(d.criadoEm) as ultima

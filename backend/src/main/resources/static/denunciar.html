@@ -3,26 +3,29 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#0b1220">
     <title>AlôSeguro — Denunciar número</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="icones/icone-192.png">
     <link rel="stylesheet" href="css/estilo.css">
 </head>
 <body>
 <header id="topo"></header>
 
-<main>
+<main id="conteudo" tabindex="-1">
     <div class="medio">
         <h1>Denunciar um número</h1>
         <p class="subtitulo">Sua denúncia ajuda a próxima pessoa que receber uma ligação deste número.</p>
 
         <form class="cartao" id="form-denuncia" novalidate>
             <label for="numero">Número que ligou</label>
-            <input id="numero" type="tel" inputmode="tel" placeholder="(11) 99999-9999" required>
+            <input id="numero" type="tel" inputmode="tel" placeholder="(11) 99999-9999" required aria-required="true">
 
             <label for="banco">Banco que o golpista disse ser <span class="opcional">(opcional)</span></label>
             <input id="banco" maxlength="100" placeholder="Ex.: Banco Aurora">
 
             <label for="tipo">O que pediram durante a ligação?</label>
-            <select id="tipo" required>
+            <select id="tipo" required aria-required="true">
                 <option value="">Selecione...</option>
                 <option value="PEDIU_SENHA">Pediu senha ou token</option>
                 <option value="PEDIU_CODIGO">Pediu código recebido por SMS</option>
@@ -35,16 +38,31 @@
             <label for="quando">Quando foi a ligação? <span class="opcional">(opcional)</span></label>
             <input id="quando" type="datetime-local">
 
-            <label for="descricao">Conte o que aconteceu <span class="opcional">(opcional, até 500 caracteres)</span></label>
-            <textarea id="descricao" maxlength="500"
+            <label for="descricao">Conte o que aconteceu <span class="opcional">(opcional)</span></label>
+            <textarea id="descricao" maxlength="500" aria-describedby="ajuda-descricao"
                       placeholder="Ex.: disse que minha conta foi invadida e transferiu para o setor de segurança..."></textarea>
+            <span class="ajuda" id="ajuda-descricao">Até 500 caracteres. Uma inteligência artificial lê o relato e identifica
+                o que o golpista pediu. Não escreva seus dados pessoais.</span>
 
             <div id="aviso" class="aviso" hidden></div>
 
             <button class="botao largo" type="submit" id="botao">Enviar denúncia</button>
         </form>
+
+        <section class="cartao" id="confirmacao" hidden tabindex="-1" aria-labelledby="t-confirmacao">
+            <h2 id="t-confirmacao">Denúncia registrada. Obrigado!</h2>
+            <p id="c-texto"></p>
+            <ul class="etiquetas" id="c-tags"></ul>
+            <p class="origem" id="c-origem"></p>
+            <div class="acoes-resultado">
+                <a class="botao" id="c-ver" href="index.html">Ver o resultado atualizado</a>
+                <a class="botao leve" href="minhas.html">Minhas denúncias</a>
+            </div>
+        </section>
     </div>
 </main>
+
+<footer id="rodape"></footer>
 
 <script src="js/app.js"></script>
 <script>
@@ -61,33 +79,56 @@
             evento.preventDefault();
             const aviso = document.getElementById('aviso');
             const botao = document.getElementById('botao');
+            const campoNumero = document.getElementById('numero');
+            const campoTipo = document.getElementById('tipo');
             aviso.hidden = true;
+            [campoNumero, campoTipo].forEach(c => c.removeAttribute('aria-invalid'));
 
-            const tipo = document.getElementById('tipo').value;
-            if (!tipo) {
+            if (!campoNumero.value.trim()) {
+                campoNumero.setAttribute('aria-invalid', 'true');
+                mostrarErro(aviso, new Error('Informe o número que ligou.'));
+                campoNumero.focus();
+                return;
+            }
+            if (!campoTipo.value) {
+                campoTipo.setAttribute('aria-invalid', 'true');
                 mostrarErro(aviso, new Error('Selecione o que pediram durante a ligação.'));
+                campoTipo.focus();
                 return;
             }
 
             botao.disabled = true;
+            botao.textContent = 'Enviando e analisando o relato...';
             try {
                 const quando = document.getElementById('quando').value;
-                const resposta = await chamarApi('/denuncias', {
+                const r = await chamarApi('/denuncias', {
                     method: 'POST',
                     protegida: true,
                     body: JSON.stringify({
-                        numero: document.getElementById('numero').value,
+                        numero: campoNumero.value,
                         bancoAlegado: document.getElementById('banco').value,
-                        tipoAbordagem: tipo,
+                        tipoAbordagem: campoTipo.value,
                         descricao: document.getElementById('descricao').value,
                         dataHoraLigacao: quando || null
                     })
                 });
-                mostrarSucesso(aviso, 'Denúncia registrada. Obrigado! Abrindo o resultado atualizado...');
-                setTimeout(() => { location.href = 'index.html?numero=' + resposta.numero; }, 1200);
+                document.getElementById('form-denuncia').hidden = true;
+                document.getElementById('c-texto').textContent =
+                    `Registramos a denúncia do número ${r.numeroFormatado}. Tópicos identificados no relato:`;
+                document.getElementById('c-tags').innerHTML =
+                    r.tags.map(t => `<li class="etiqueta">${escapar(t.descricao)}</li>`).join('');
+                document.getElementById('c-origem').textContent = r.tagsOrigem === 'IA'
+                    ? 'Classificado por inteligência artificial.'
+                    : 'Classificado por palavras-chave (a IA não estava disponível no momento).';
+                document.getElementById('c-ver').href = 'index.html?numero=' + r.numero;
+                const confirmacao = document.getElementById('confirmacao');
+                confirmacao.hidden = false;
+                confirmacao.focus();
             } catch (erro) {
                 mostrarErro(aviso, erro);
+            } finally {
                 botao.disabled = false;
+                botao.textContent = 'Enviar denúncia';
             }
         });
     }

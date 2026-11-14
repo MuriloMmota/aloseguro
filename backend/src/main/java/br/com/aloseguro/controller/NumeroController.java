@@ -3,7 +3,7 @@ package br.com.aloseguro.controller;
 import br.com.aloseguro.dto.ConsultaDtos.ConsultaResponse;
 import br.com.aloseguro.dto.ConsultaDtos.RankingItemResponse;
 import br.com.aloseguro.service.DenunciaService;
-import br.com.aloseguro.service.ScoreRiscoService;
+import br.com.aloseguro.service.RiscoService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,11 +16,11 @@ import java.util.List;
 @RequestMapping("/api/numeros")
 public class NumeroController {
 
-    private final ScoreRiscoService scoreRiscoService;
+    private final RiscoService riscoService;
     private final DenunciaService denunciaService;
 
-    public NumeroController(ScoreRiscoService scoreRiscoService, DenunciaService denunciaService) {
-        this.scoreRiscoService = scoreRiscoService;
+    public NumeroController(RiscoService riscoService, DenunciaService denunciaService) {
+        this.riscoService = riscoService;
         this.denunciaService = denunciaService;
     }
 
@@ -31,9 +31,9 @@ public class NumeroController {
         return denunciaService.ranking(dias, limite);
     }
 
-    /** GET /api/numeros/{numero} — consulta pública com o score de risco. */
+    /** GET /api/numeros/{numero} — consulta pública com o score de risco e os fatores. */
     @GetMapping("/{numero}")
     public ConsultaResponse consultar(@PathVariable String numero) {
-        return scoreRiscoService.consultar(numero);
+        return riscoService.consultar(numero);
     }
 }

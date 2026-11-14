@@ -3,34 +3,98 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#0b1220">
     <title>AlôSeguro — Minhas denúncias</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="icones/icone-192.png">
     <link rel="stylesheet" href="css/estilo.css">
 </head>
 <body>
 <header id="topo"></header>
 
-<main>
+<main id="conteudo" tabindex="-1">
     <div class="medio">
         <h1>Minhas denúncias</h1>
-        <p class="subtitulo">Histórico das ligações que você denunciou.</p>
+        <p class="subtitulo">Você pode corrigir ou excluir as denúncias que fez.</p>
 
-        <div class="cartao">
-            <ul class="lista-denuncias" id="lista"><li class="vazio">Carregando...</li></ul>
-        </div>
         <div id="aviso" class="aviso" hidden></div>
+
+        <section class="cartao" aria-labelledby="t-lista">
+            <h2 id="t-lista" class="sr-only">Lista de denúncias</h2>
+            <ul class="lista-denuncias" id="lista"><li class="vazio">Carregando...</li></ul>
+        </section>
+
+        <section class="cartao" aria-labelledby="t-conta">
+            <h2 id="t-conta">Minha conta</h2>
+            <p id="conta-info" class="ajuda"></p>
+            <form id="form-nome">
+                <label for="nome">Nome</label>
+                <input id="nome" maxlength="100" required>
+                <div class="acoes-resultado">
+                    <button class="botao secundario" type="submit">Salvar nome</button>
+                    <button class="botao perigo" type="button" id="excluir-conta">Excluir minha conta</button>
+                </div>
+            </form>
+        </section>
     </div>
 </main>
 
+<!-- Janela de edição -->
+<dialog id="dialogo-editar" aria-labelledby="t-editar">
+    <form id="form-editar" method="dialog">
+        <h2 id="t-editar">Editar denúncia</h2>
+        <p id="e-numero" class="ajuda"></p>
+
+        <label for="e-banco">Banco que o golpista disse ser <span class="opcional">(opcional)</span></label>
+        <input id="e-banco" maxlength="100">
+
+        <label for="e-tipo">O que pediram durante a ligação?</label>
+        <select id="e-tipo" required>
+            <option value="PEDIU_SENHA">Pediu senha ou token</option>
+            <option value="PEDIU_CODIGO">Pediu código recebido por SMS</option>
+            <option value="PEDIU_TRANSFERENCIA">Pediu Pix ou transferência</option>
+            <option value="PEDIU_APLICATIVO">Pediu para instalar um aplicativo</option>
+            <option value="PEDIU_CARTAO">Pediu para entregar o cartão</option>
+            <option value="OUTRO">Outro</option>
+        </select>
+
+        <label for="e-descricao">O que aconteceu <span class="opcional">(opcional)</span></label>
+        <textarea id="e-descricao" maxlength="500"></textarea>
+
+        <div id="e-aviso" class="aviso" hidden></div>
+        <div class="acoes">
+            <button class="botao leve" type="button" id="e-cancelar">Cancelar</button>
+            <button class="botao" type="submit" id="e-salvar">Salvar alterações</button>
+        </div>
+    </form>
+</dialog>
+
+<!-- Janela de confirmação -->
+<dialog id="dialogo-confirmar" aria-labelledby="t-confirmar" aria-describedby="c-mensagem">
+    <h2 id="t-confirmar">Tem certeza?</h2>
+    <p id="c-mensagem"></p>
+    <div class="acoes">
+        <button class="botao leve" type="button" id="c-nao">Cancelar</button>
+        <button class="botao perigo" type="button" id="c-sim">Excluir</button>
+    </div>
+</dialog>
+
+<footer id="rodape"></footer>
+
 <script src="js/app.js"></script>
 <script>
+    const aviso = document.getElementById('aviso');
+    let denuncias = [];
+
     if (exigirLogin()) {
         carregar();
+        carregarConta();
     }
 
     async function carregar() {
         const lista = document.getElementById('lista');
         try {
-            const denuncias = await chamarApi('/denuncias/minhas', { protegida: true });
+            denuncias = await chamarApi('/denuncias/minhas', { protegida: true });
             if (denuncias.length === 0) {
                 lista.innerHTML = '<li class="vazio">Você ainda não fez nenhuma denúncia. '
                     + '<a href="denunciar.html">Denunciar um número</a></li>';
@@ -42,15 +106,123 @@
                         <a class="num" href="index.html?numero=${escapar(d.numero)}">${escapar(d.numeroFormatado)}</a>
                         <span class="data">Registrada em ${formatarDataHora(d.registradaEm)}</span>
                     </div>
-                    <span class="etiqueta">${escapar(d.tipoAbordagemDescricao)}</span>
-                    ${d.bancoAlegado ? `<span class="etiqueta">Disse ser: ${escapar(d.bancoAlegado)}</span>` : ''}
                     ${d.descricao ? `<p>${escapar(d.descricao)}</p>` : ''}
+                    <ul class="etiquetas">${d.tags.map(t => `<li class="etiqueta">${escapar(t.descricao)}</li>`).join('')}</ul>
+                    <span class="origem">${d.tagsOrigem === 'IA' ? 'Tópicos identificados por IA' : 'Tópicos identificados por palavras-chave'}</span>
+                    <div class="acoes">
+                        <button class="botao leve" type="button" data-editar="${d.id}">Editar <span class="sr-only">denúncia de ${escapar(d.numeroFormatado)}</span></button>
+                        <button class="botao leve" type="button" data-excluir="${d.id}">Excluir <span class="sr-only">denúncia de ${escapar(d.numeroFormatado)}</span></button>
+                    </div>
                 </li>`).join('');
+            lista.querySelectorAll('[data-editar]').forEach(b => b.addEventListener('click', () => abrirEdicao(Number(b.dataset.editar))));
+            lista.querySelectorAll('[data-excluir]').forEach(b => b.addEventListener('click', () => confirmarExclusao(Number(b.dataset.excluir))));
         } catch (erro) {
             lista.innerHTML = '';
-            mostrarErro(document.getElementById('aviso'), erro);
+            mostrarErro(aviso, erro);
         }
     }
+
+    // ---------------- editar
+    const dialogoEditar = document.getElementById('dialogo-editar');
+    let editando = null;
+
+    function abrirEdicao(id) {
+        const d = denuncias.find(x => x.id === id);
+        editando = id;
+        document.getElementById('e-numero').textContent = 'Número: ' + d.numeroFormatado;
+        document.getElementById('e-banco').value = d.bancoAlegado || '';
+        document.getElementById('e-tipo').value = d.tipoAbordagem;
+        document.getElementById('e-descricao').value = d.descricao || '';
+        document.getElementById('e-aviso').hidden = true;
+        dialogoEditar.showModal();
+    }
+
+    document.getElementById('e-cancelar').addEventListener('click', () => dialogoEditar.close());
+    document.getElementById('form-editar').addEventListener('submit', async evento => {
+        evento.preventDefault();
+        const d = denuncias.find(x => x.id === editando);
+        try {
+            await chamarApi('/denuncias/' + editando, {
+                method: 'PUT',
+                protegida: true,
+                body: JSON.stringify({
+                    bancoAlegado: document.getElementById('e-banco').value,
+                    tipoAbordagem: document.getElementById('e-tipo').value,
+                    descricao: document.getElementById('e-descricao').value,
+                    dataHoraLigacao: d.dataHoraLigacao
+                })
+            });
+            dialogoEditar.close();
+            mostrarSucesso(aviso, 'Denúncia atualizada. O relato foi analisado de novo.');
+            carregar();
+        } catch (erro) {
+            mostrarErro(document.getElementById('e-aviso'), erro);
+        }
+    });
+
+    // ---------------- excluir (denúncia ou conta)
+    const dialogoConfirmar = document.getElementById('dialogo-confirmar');
+    let aoConfirmar = null;
+
+    function confirmar(mensagem, acao) {
+        document.getElementById('c-mensagem').textContent = mensagem;
+        aoConfirmar = acao;
+        dialogoConfirmar.showModal();
+        document.getElementById('c-nao').focus();
+    }
+    document.getElementById('c-nao').addEventListener('click', () => dialogoConfirmar.close());
+    document.getElementById('c-sim').addEventListener('click', async () => {
+        dialogoConfirmar.close();
+        if (aoConfirmar) await aoConfirmar();
+    });
+
+    function confirmarExclusao(id) {
+        const d = denuncias.find(x => x.id === id);
+        confirmar(`A denúncia do número ${d.numeroFormatado} será excluída e o score do número será recalculado.`, async () => {
+            try {
+                await chamarApi('/denuncias/' + id, { method: 'DELETE', protegida: true });
+                mostrarSucesso(aviso, 'Denúncia excluída.');
+                carregar();
+            } catch (erro) {
+                mostrarErro(aviso, erro);
+            }
+        });
+    }
+
+    // ---------------- conta
+    async function carregarConta() {
+        try {
+            const c = await chamarApi('/conta', { protegida: true });
+            document.getElementById('nome').value = c.nome;
+            document.getElementById('conta-info').textContent =
+                `${c.email} · conta criada em ${formatarDataHora(c.criadoEm)} · ${c.totalDenuncias} denúncia(s)`;
+        } catch (erro) { /* a lista já mostra o erro */ }
+    }
+
+    document.getElementById('form-nome').addEventListener('submit', async evento => {
+        evento.preventDefault();
+        try {
+            const c = await chamarApi('/conta', {
+                method: 'PUT', protegida: true,
+                body: JSON.stringify({ nome: document.getElementById('nome').value })
+            });
+            Sessao.salvar({ token: Sessao.token(), nome: c.nome });
+            mostrarSucesso(aviso, 'Nome atualizado.');
+        } catch (erro) {
+            mostrarErro(aviso, erro);
+        }
+    });
+
+    document.getElementById('excluir-conta').addEventListener('click', () =>
+        confirmar('Sua conta e todas as suas denúncias serão apagadas. Isso não pode ser desfeito.', async () => {
+            try {
+                await chamarApi('/conta', { method: 'DELETE', protegida: true });
+                Sessao.sair();
+                location.href = 'index.html';
+            } catch (erro) {
+                mostrarErro(aviso, erro);
+            }
+        }));
 </script>
 </body>
 </html>

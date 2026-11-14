@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#0b1220">
+    <title>AlôSeguro — Acessibilidade</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="icones/icone-192.png">
+    <link rel="stylesheet" href="css/estilo.css">
+</head>
+<body>
+<header id="topo"></header>
+
+<main id="conteudo" tabindex="-1">
+    <div class="medio">
+        <h1>Acessibilidade</h1>
+        <p class="subtitulo">O golpe da falsa central atinge muito idosos e pessoas com pouca familiaridade digital.
+            Por isso o AlôSeguro foi pensado para ser usado por todo mundo.</p>
+
+        <section class="cartao" aria-labelledby="t-recursos">
+            <h2 id="t-recursos">Recursos disponíveis</h2>
+            <ul>
+                <li><strong>Tamanho do texto (A− e A+):</strong> aumenta todo o site em até 37,5%, sem quebrar o layout. A escolha fica salva.</li>
+                <li><strong>Alto contraste:</strong> fundo preto, texto branco e destaques em amarelo.</li>
+                <li><strong>VLibras:</strong> o botão azul no canto da tela traduz o conteúdo para Libras (ferramenta do governo federal).</li>
+                <li><strong>Teclado:</strong> tudo funciona com Tab, Enter e Esc. O primeiro Tab mostra o atalho "Pular para o conteúdo" e o foco aparece com uma borda amarela.</li>
+                <li><strong>Leitor de tela:</strong> campos com rótulos, títulos em ordem, resultado anunciado automaticamente e a barra de risco lida como "score de risco X de 100".</li>
+                <li><strong>Não depende só da cor:</strong> o nível de risco sempre aparece escrito e com um símbolo (✕, !, ✓, ⓘ).</li>
+                <li><strong>Celular:</strong> o layout se adapta à tela, os botões têm no mínimo 44 pixels de altura e o site pode ser instalado na tela inicial.</li>
+                <li><strong>Menos movimento:</strong> se o sistema estiver configurado para reduzir animações, o site respeita.</li>
+            </ul>
+        </section>
+
+        <section class="cartao" aria-labelledby="t-cores">
+            <h2 id="t-cores">Cores e contraste</h2>
+            <p>Todas as combinações de texto seguem a WCAG 2.1, nível AA (contraste mínimo de 4,5:1).</p>
+            <div class="tabela-rolagem">
+                <table class="tabela">
+                    <caption class="sr-only">Contraste das cores principais</caption>
+                    <thead><tr><th scope="col">Uso</th><th scope="col">Combinação</th><th scope="col">Contraste</th></tr></thead>
+                    <tbody>
+                    <tr><td>Texto principal</td><td><span class="amostra-cor" style="background:#1c2433"></span>sobre branco</td><td>15,6:1</td></tr>
+                    <tr><td>Texto secundário</td><td><span class="amostra-cor" style="background:#4b5566"></span>sobre branco</td><td>7,5:1</td></tr>
+                    <tr><td>Links</td><td><span class="amostra-cor" style="background:#0b6b73"></span>sobre branco</td><td>6,2:1</td></tr>
+                    <tr><td>Botão principal</td><td><span class="amostra-cor" style="background:#22b8c4"></span>texto azul-escuro</td><td>7,8:1</td></tr>
+                    <tr><td>Risco baixo</td><td><span class="amostra-cor" style="background:#157a43"></span>texto branco</td><td>5,4:1</td></tr>
+                    <tr><td>Atenção</td><td><span class="amostra-cor" style="background:#9a5b00"></span>texto branco</td><td>5,4:1</td></tr>
+                    <tr><td>Alto risco</td><td><span class="amostra-cor" style="background:#c0352d"></span>texto branco</td><td>5,5:1</td></tr>
+                    <tr><td>Central oficial</td><td><span class="amostra-cor" style="background:#2559b8"></span>texto branco</td><td>6,6:1</td></tr>
+                    <tr><td>Alto contraste</td><td><span class="amostra-cor" style="background:#ffd400"></span>amarelo sobre preto</td><td>14,7:1</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="cartao" aria-labelledby="t-problema">
+            <h2 id="t-problema">Encontrou uma barreira?</h2>
+            <p>Este é um projeto acadêmico em evolução. Se alguma parte não funcionar com a sua tecnologia assistiva,
+                avise o grupo pelo GitHub do projeto.</p>
+        </section>
+    </div>
+</main>
+
+<footer id="rodape"></footer>
+<script src="js/app.js"></script>
+</body>
+</html>

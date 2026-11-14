@@ -46,6 +46,15 @@ public class Usuario {
         }
     }
 
+    public void alterarNome(String nome) {
+        this.nome = nome;
+    }
+
+    /** Usado apenas pelos testes, para simular contas antigas. */
+    public void definirCriadoEm(Instant criadoEm) {
+        this.criadoEm = criadoEm;
+    }
+
     public Long getId() {
         return id;
     }

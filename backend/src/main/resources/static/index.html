@@ -3,23 +3,29 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Consulte se um número de telefone já foi denunciado no Golpe da Falsa Central de Atendimento.">
+    <meta name="theme-color" content="#0b1220">
     <title>AlôSeguro — Consultar número</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="icones/icone-192.png">
+    <link rel="apple-touch-icon" href="icones/apple-touch-icon.png">
     <link rel="stylesheet" href="css/estilo.css">
 </head>
 <body>
 <header id="topo"></header>
 
-<main>
-    <section class="hero">
-        <h1>Recebeu uma ligação do "banco"? Consulte o número antes de qualquer coisa.</h1>
-        <p>Veja se o número já foi denunciado por outras pessoas e qual o risco de ser o Golpe da Falsa Central de Atendimento.</p>
+<main id="conteudo" tabindex="-1">
+    <section class="hero" aria-labelledby="titulo-hero">
+        <h1 id="titulo-hero">Recebeu uma ligação do "banco"? Consulte o número antes de qualquer coisa.</h1>
+        <p>Veja se o número já foi denunciado, qual o risco de ser o Golpe da Falsa Central de Atendimento e por quê.</p>
 
-        <form class="busca" id="form-consulta" autocomplete="off">
-            <label for="numero" class="sr-only" style="position:absolute;left:-9999px">Número de telefone</label>
-            <input id="numero" name="numero" type="tel" inputmode="tel"
+        <form class="busca" id="form-consulta" autocomplete="off" role="search">
+            <label for="numero" class="sr-only">Número de telefone que ligou para você</label>
+            <input id="numero" name="numero" type="tel" inputmode="tel" aria-describedby="ajuda-numero"
                    placeholder="(11) 99999-9999 ou 0800 000 0000" required>
             <button class="botao" type="submit" id="botao-consultar">Consultar</button>
         </form>
+        <p id="ajuda-numero" class="sr-only">Digite com DDD. Pode ter parênteses, espaços ou traços.</p>
 
         <div class="exemplos">
             Experimente:
@@ -27,62 +33,85 @@
             <button type="button" data-numero="21900000002">(21) 90000-0002</button>
             <button type="button" data-numero="1130000003">(11) 3000-0003</button>
             <button type="button" data-numero="08007001000">0800 700 1000</button>
+            <button type="button" data-numero="11977709999">(11) 97770-9999</button>
             <button type="button" data-numero="11912345678">(11) 91234-5678</button>
         </div>
+
+        <div class="numeros-hero" id="numeros-hero" aria-live="polite"></div>
     </section>
 
     <div id="erro-consulta" class="aviso erro" hidden></div>
 
-    <section id="resultado" class="resultado cartao" hidden aria-live="polite">
+    <section id="resultado" class="resultado cartao" hidden aria-labelledby="r-numero" tabindex="-1">
         <div class="resultado-topo">
             <div>
-                <div class="numero-consultado" id="r-numero"></div>
+                <h2 class="numero-consultado" id="r-numero"></h2>
                 <div class="tipo-linha" id="r-tipo"></div>
             </div>
             <span class="selo" id="r-selo"></span>
         </div>
 
-        <div class="barra-score" id="r-barra">
-            <div class="trilho"><div class="preenchido" id="r-preenchido" style="width:0"></div></div>
-            <div class="legenda"><span>Score de risco</span><span id="r-score"></span></div>
+        <div class="placar" id="r-placar">
+            <div class="nota" id="r-score" aria-hidden="true"></div>
+            <div>
+                <div class="barra" role="meter" aria-valuemin="0" aria-valuemax="100" id="r-medidor" aria-label="Score de risco">
+                    <div class="preenchido" id="r-preenchido" style="width:0"></div>
+                </div>
+            </div>
+            <div class="confianca" id="r-confianca"></div>
         </div>
 
-        <p class="mensagem-risco" id="r-mensagem"></p>
-        <ul class="motivos" id="r-motivos"></ul>
+        <p class="mensagem-risco" id="r-mensagem" role="status"></p>
 
-        <div class="numeros-resumo">
+        <div class="resumo-numeros">
             <div><strong id="r-total">0</strong><span>denúncias no total</span></div>
             <div><strong id="r-30d">0</strong><span>nos últimos 30 dias</span></div>
             <div><strong id="r-pessoas">0</strong><span>pessoas diferentes</span></div>
         </div>
 
+        <div class="secao">
+            <h3>Por que essa nota? Os 6 fatores do motor de risco</h3>
+            <ul class="fatores" id="r-fatores"></ul>
+            <p class="ajuda"><a href="como-funciona.html">Entenda como cada fator é calculado</a></p>
+        </div>
+
+        <div class="duas-colunas">
+            <div>
+                <h3>O que os golpistas pediram</h3>
+                <p class="ajuda">Tópicos identificados pela IA nos relatos das denúncias.</p>
+                <ul class="etiquetas" id="r-topicos"></ul>
+            </div>
+            <div>
+                <h3>Relatos recentes</h3>
+                <ul class="relatos" id="r-relatos"></ul>
+            </div>
+        </div>
+
         <div class="acoes-resultado">
-            <a class="botao secundario" id="r-denunciar" href="denunciar.html">Denunciar este número</a>
+            <a class="botao secundario" id="r-denunciar" href="denunciar.html">Recebi ligação deste número: denunciar</a>
         </div>
     </section>
 
     <section class="dicas" aria-label="Como se proteger">
         <div class="cartao">
             <div class="icone" aria-hidden="true">🔒</div>
-            <h3>Banco não pede senha</h3>
+            <h2 class="h3">Banco não pede senha</h2>
             <p>Nenhum banco pede senha, token ou código do SMS por telefone. Se pediram, é golpe.</p>
         </div>
         <div class="cartao">
             <div class="icone" aria-hidden="true">📵</div>
-            <h3>O número pode ser falso</h3>
+            <h2 class="h3">O número pode ser falso</h2>
             <p>Golpistas conseguem fazer aparecer na tela o número verdadeiro do banco (spoofing).</p>
         </div>
         <div class="cartao">
             <div class="icone" aria-hidden="true">☎️</div>
-            <h3>Desligue e ligue você</h3>
+            <h2 class="h3">Desligue e ligue você</h2>
             <p>Na dúvida, encerre a ligação e ligue para o número que está no verso do seu cartão.</p>
         </div>
     </section>
 </main>
 
-<footer class="rodape-site">
-    AlôSeguro — Projeto A3 de Sistemas Distribuídos e Mobile · Universidade Anhembi Morumbi
-</footer>
+<footer id="rodape"></footer>
 
 <script src="js/app.js"></script>
 <script src="js/consulta.js"></script>
